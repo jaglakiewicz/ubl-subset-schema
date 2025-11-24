@@ -1,0 +1,39 @@
+name: Build UBL subset
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Ant and ant-contrib
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ant ant-contrib
+
+      - name: Run subset build (Demo profile)
+        run: |
+          ant -f subsetUBLSchemas.xml -DconfigDirectory=DemoUBL21Subset
+
+      - name: Pack artifacts
+        run: |
+          mkdir -p out
+          cp -R UBL-* out/ || true
+          zip -r ubl-subset.zip out
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubl-subset
+          path: ubl-subset.zip
