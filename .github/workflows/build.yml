@@ -1,37 +1,33 @@
 name: Build
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
 
-    - name: Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y aspell libreoffice
+      - name: Install Ant and ant-contrib
+        run: |
+          sudo apt update
+          sudo apt install -y ant ant-contrib
 
-    - name: Build
+      - name: Build UBL subset (Demo profile)
+        run: |
+          ant -f subsetUBLSchemas.xml -DconfigDirectory=DemoUBL21Subset
 
-      run: |
-        mkdir target
-        timestamp=$(date -u +%Y%m%d-%H%M%S)
-        echo "TIMESTAMP=${timestamp}" >>$GITHUB_ENV
-        bash subsetUBLSchemas-github.sh target github ${timestamp}z DELETE-REPOSITORY-FILES-AS-WELL
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: artefacts-UBL-subset-github-${{ env.TIMESTAMP }}z
-        path: ./*
-        #path: target/artefacts-UBL-2.3-github-${{ env.TIMESTAMP }}z/*
-        #name: all-UBL-2.3-github-${{ env.TIMESTAMP }}z
-        #path: ./*
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubl-subset
+          path: ./UBL-*
