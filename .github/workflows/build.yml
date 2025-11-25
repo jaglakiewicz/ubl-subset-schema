@@ -28,7 +28,7 @@ jobs:
         echo "TIMESTAMP=${timestamp}" >>$GITHUB_ENV
         bash subsetUBLSchemas-github.sh target github ${timestamp}z DELETE-REPOSITORY-FILES-AS-WELL
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: artefacts-UBL-subset-github-${{ env.TIMESTAMP }}z
         path: ./*
